@@ -37,12 +37,19 @@ function updateCodecExternalSourceState(item) {
 	} else {console.log(`  == > Codec is not connected SourceIdentifier:"${item.SourceIdentifier}" will not be updated.`);}	*/
 }
 
-function updateCodecUSBConnected(item) {
+function updateCodecUSBConnected(item, connection) {
 	if (Codec.isConnected) {
-		Codec.xAPI.command('Message Send', {Text: item.Name + ' USB plugged in'}).then( response => {
-			if(response.status=='OK') {	console.log(`  == > Message to Codec: Message Send Text: "${item.Name + ' USB plugged in'}" is`);	}
-			else { console.log(`  == > Message not sent to Codec:"${item.Name + ' USB plugged in'}"`); }
-		});
+		if (connection) {
+			Codec.xAPI.command('Message Send', { Text: item.Name + ' USB plugged in' }).then(response => {
+				if (response.status == 'OK') { console.log(`  == > Message to Codec: Message Send Text: "${item.Name + ' USB plugged in'}" is`); }
+				else { console.log(`  == > Message not sent to Codec:"${item.Name + ' USB plugged in'}"`); }
+			});
+		} else {
+			Codec.xAPI.command('Message Send', { Text: item.Name + ' USB unplugged' }).then(response => {
+				if (response.status == 'OK') { console.log(`  == > Message to Codec: Message Send Text: "${item.Name + ' USB unplugged'}" is`); }
+				else { console.log(`  == > Message not sent to Codec:"${item.Name + ' USB unplugged'}"`); }
+			});
+        }
 	} else {console.log(`  == > Codec is not connected, message not sent to Codec:"${item.Name + " USB plugged in"}"`);}	
 }
 
@@ -60,9 +67,9 @@ function registerUSBConnectionWatchers(item, index) {
 		console.log(`  == > /V1/MEDIA/VIDEO/U${item.Input}.Connected=${val}`);
 		//item.State = ((/true|1/).test(val)==true) ? "Ready":"NotReady";
 
-		if((/true|1/).test(val) === true){
-			updateCodecUSBConnected(item);
-		}
+		var connection = (/true|1/).test(val);
+		updateCodecUSBConnected(item, connection);
+
 	});
 	console.log(`  == > LW3 property watcher registred for ${item.Name} for IN${item.Input}`);
 }
@@ -240,10 +247,29 @@ function readyCodec() {
 	</Panel>
 	</Extensions>
 	`
+	var StartWebcamMode =
+	`
+	<Extensions>
+	<Version>1.6</Version>
+	<Panel>
+		<PanelId>lw_start_webcammode_panel</PanelId>
+		<Type>Statusbar</Type>
+		<Icon>Camera</Icon>
+		<Order>4</Order>
+		<Color>#00FF00</Color>
+		<Name>Start Webcam Mode</Name>
+		<ActivityType>Custom</ActivityType>
+	</Panel>
+	</Extensions>
+	`
 	Codec.xAPI.event.on('UserInterface Extensions Panel Clicked', (event) => {
-	if (event.PanelId == 'lw_exit_webcammode_panel') {
-		Codec.xAPI.command('Camera Preset Activate', {PresetId: '10'});
-	}
+		if (event.PanelId == 'lw_exit_webcammode_panel') {
+			Codec.xAPI.command('Camera Preset Activate', { PresetId: '10' });
+		} else if (event.PanelId == 'lw_start_webcammode_panel') {
+			// TODO add event logic for start webcam mode button push
+			// use message send logic
+			Codec.xAPI.command('Message Send', { 'START BUTTON PRESSED!' })
+        }
 	});
 
 	Codec.xAPI.command('Camera Preset Store', {Name: 'Webex', PresetId:10, CameraId:1});
@@ -268,15 +294,18 @@ function readyCodec() {
 
 	Codec.xAPI.event.on('Message Send', (event) => {
 	for (var cam in WebcamSources) {
-		if (event.Text == WebcamSources[cam]+' USB plugged in') {
-		Codec.xAPI.command('UserInterface Message Prompt Display',{
-			Title:WebcamSources[cam]+' USB plugged in',
-			Text:'Do you want to switch webcam to '+WebcamSources[cam]+'',
-			'Option.1':'Yes',
-			'Option.2':'No',
-			FeedbackId:'SwitchWebcam'+WebcamSources[cam]
-		});
-		}
+		if (event.Text == WebcamSources[cam] + ' USB plugged in') {
+			Codec.xAPI.command('UserInterface Extensions Panel Save', { PanelId: 'lw_start_webcammode_panel' }, StartWebcamMode);
+			Codec.xAPI.command('UserInterface Message Prompt Display', {
+				Title: WebcamSources[cam] + ' USB plugged in',
+				Text: 'Do you want to switch webcam to ' + WebcamSources[cam] + '',
+				'Option.1': 'Yes',
+				'Option.2': 'No',
+				FeedbackId: 'SwitchWebcam' + WebcamSources[cam]
+			});
+		} else if (event.Text == WebcamSources[cam] + ' USB unplugged') {
+			Codec.xAPI.command('UserInterface Extensions Panel Remove', { PanelId: 'lw_start_webcammode_panel' });
+        }
 	}
 	});
 
@@ -302,7 +331,11 @@ function readyCodec() {
 
 	// logic for calls coming in. Same logic for "exit webcam mode"
 	Codec.xAPI.event.on('CallSuccessful', (_event) => {
-		Codec.xAPI.command('Camera Preset Activate', { PresetId: '10' });
+		dev.lw3.CALL(`/V1/MEDIA/USB/XP:switch`, `0:H1`, () => { });
+		dev.lw3.SET(`/V1/MEDIA/USB/H1/D1.Power5VMode`, `Off`, () => { });
+
+		//Codec.xAPI.command('Presentation Stop');
+		Codec.xAPI.command('UserInterface Extensions Panel Remove', { PanelId: 'lw_exit_webcammode_panel' });
 	});
 }
 
@@ -344,10 +377,3 @@ function errorCodec(err) {
 		);
 	}
 }
-
-
-  
-  
-  
-  
-  
