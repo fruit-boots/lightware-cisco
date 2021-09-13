@@ -268,7 +268,7 @@ function readyCodec() {
 		} else if (event.PanelId == 'lw_start_webcammode_panel') {
 			// TODO add event logic for start webcam mode button push
 			// use message send logic
-			Codec.xAPI.command('Message Send', { 'START BUTTON PRESSED!' })
+			Codec.xAPI.command('Message Send', { Text: 'Start button pushed!' });
         }
 	});
 
