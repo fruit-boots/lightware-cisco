@@ -305,6 +305,7 @@ function readyCodec() {
 			});
 		} else if (event.Text == WebcamSources[cam] + ' USB unplugged') {
 			Codec.xAPI.command('UserInterface Extensions Panel Remove', { PanelId: 'lw_start_webcammode_panel' });
+			Codec.xAPI.command('UserInterface Extensions Panel Remove', { PanelId: 'lw_exit_webcammode_panel' });
         }
 	}
 	});
