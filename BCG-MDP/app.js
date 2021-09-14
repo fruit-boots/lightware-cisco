@@ -305,6 +305,7 @@ function readyCodec() {
 	for (var cam in WebcamSources) {
 		if (event.Text == WebcamSources[cam] + ' USB plugged in') {
 			currentSource = WebcamSources[cam];
+			Codec.xAPI.command('Message Send', { Text: currentSource + ' is stored' });
 			Codec.xAPI.command('UserInterface Extensions Panel Save', { PanelId: 'lw_start_webcammode_panel' }, StartWebcamMode);
 			Codec.xAPI.command('UserInterface Message Prompt Display', {
 				Title: WebcamSources[cam] + ' USB plugged in',
