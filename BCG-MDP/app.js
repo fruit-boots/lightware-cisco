@@ -264,7 +264,7 @@ function readyCodec() {
 	</Panel>
 	</Extensions>
 	`
-	var currentSource = ''; //Start webcam panel
+	var currentSource = 0; //Start webcam panel
 	Codec.xAPI.event.on('UserInterface Extensions Panel Clicked', (event) => {
 		if (event.PanelId == 'lw_exit_webcammode_panel') {
 			Codec.xAPI.command('Camera Preset Activate', { PresetId: '10' });
