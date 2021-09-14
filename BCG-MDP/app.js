@@ -298,7 +298,7 @@ function readyCodec() {
 	Codec.xAPI.event.on('Message Send', (event) => {
 	for (var cam in WebcamSources) {
 		if (event.Text == WebcamSources[cam] + ' USB plugged in') {
-			currentSouce = cam;
+			currentSource = cam;
 			Codec.xAPI.command('Message Send', { Text: 'currentSource = ' + currentSource});
 			Codec.xAPI.command('Message Send', { Text: 'cam = ' + cam });
 			Codec.xAPI.command('Message Send', { Text: 'parseInt = ' + ('1' + parseInt(currentSource) + 1) });
