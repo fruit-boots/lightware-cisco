@@ -268,6 +268,7 @@ function readyCodec() {
 	Codec.xAPI.event.on('UserInterface Extensions Panel Clicked', (event) => {
 		if (event.PanelId == 'lw_exit_webcammode_panel') {
 			Codec.xAPI.command('Camera Preset Activate', { PresetId: '10' });
+			Codec.xAPI.command('UserInterface Extensions Panel Save', { PanelId: 'lw_start_webcammode_panel' }, StartWebcamMode);
 		} else if (event.PanelId == 'lw_start_webcammode_panel') {
 			//Codec.xAPI.command('Message Send', { Text: 'Start button pushed!!' });
 			Codec.xAPI.command('Camera Preset Activate', { PresetId: '1' + (parseInt(currentSource) + 1) });
