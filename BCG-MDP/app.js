@@ -264,14 +264,20 @@ function readyCodec() {
 	</Panel>
 	</Extensions>
 	`
-	var currentSource = 0; //Start webcam panel
+	var currentSource = ''; //Start webcam panel
 	Codec.xAPI.event.on('UserInterface Extensions Panel Clicked', (event) => {
 		if (event.PanelId == 'lw_exit_webcammode_panel') {
 			Codec.xAPI.command('Camera Preset Activate', { PresetId: '10' });
 			Codec.xAPI.command('UserInterface Extensions Panel Save', { PanelId: 'lw_start_webcammode_panel' }, StartWebcamMode);
 		} else if (event.PanelId == 'lw_start_webcammode_panel') {
-			Codec.xAPI.command('Message Send', { Text: (10 + parseInt(currentSource) + 1) + ' sent from button as preset' });
-			Codec.xAPI.command('Camera Preset Activate', { PresetId: (10 + parseInt(currentSource) + 1) });
+			for (var cam in WebcamSources) {
+				if (WebcamSource[cam] == currentSource) {
+					Codec.xAPI.command('Message Send', { Text: (10 + parseInt(cam) + 1) + ' sent from button as preset' });
+					Codec.xAPI.command('Camera Preset Activate', { PresetId: (10 + parseInt(cam) + 1) });
+                }
+            }
+			//Codec.xAPI.command('Message Send', { Text: (10 + parseInt(currentSource) + 1) + ' sent from button as preset' });
+			//Codec.xAPI.command('Camera Preset Activate', { PresetId: (10 + parseInt(currentSource) + 1) });
         }
 	});
 
@@ -298,7 +304,7 @@ function readyCodec() {
 	Codec.xAPI.event.on('Message Send', (event) => {
 	for (var cam in WebcamSources) {
 		if (event.Text == WebcamSources[cam] + ' USB plugged in') {
-			currentSource = cam;
+			currentSource = WebcamSources[cam];
 			Codec.xAPI.command('UserInterface Extensions Panel Save', { PanelId: 'lw_start_webcammode_panel' }, StartWebcamMode);
 			Codec.xAPI.command('UserInterface Message Prompt Display', {
 				Title: WebcamSources[cam] + ' USB plugged in',
