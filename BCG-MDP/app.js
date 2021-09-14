@@ -133,10 +133,10 @@ dev.lw3.addPropertyeWatcher(`/V1/MANAGEMENT/NETWORK`, "IpAddress", (val) => { Li
 dev.lw3.addPropertyeWatcher(`/V1/MANAGEMENT/NETWORK`, "HostName", (val) => { Lightware.HostName = val; if(!Codec.Room) initRoom(val); if(!Codec.Room) initRoom(`${val}.local`); });
 dev.lw3.addPropertyeWatcher(`/`, "SerialNumber", (val) => { Lightware.SerialNumber = val; });
 	
-var currentSouce = 0; // input flag for start webcam mode
+
 function readyCodec() {
 	console.log('  == > Cisco Codec conenction ready');
-	
+	var currentSource;
 	Codec.isConnected = true;
 	  
 	/*Codec.xAPI.config.get('Video Input Connector').then( response => {
@@ -271,8 +271,7 @@ function readyCodec() {
 		} else if (event.PanelId == 'lw_start_webcammode_panel') {
 			Codec.xAPI.command('Message Send', { Text: 'Start button pushed!!' });
 			//Codec.xAPI.command('Camera Preset Activate', { PresetId: '1' + (parseInt(currentSource) + 1) });
-			//let text = ('1' + parseInt(currentSource) + 1);
-			//Codec.xAPI.command('Message Send', {Text: text});
+			Codec.xAPI.command('Message Send', {Text: ('1' + parseInt(currentSource) + 1)});
         }
 	});
 
