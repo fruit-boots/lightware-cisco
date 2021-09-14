@@ -272,7 +272,8 @@ function readyCodec() {
 		} else if (event.PanelId == 'lw_start_webcammode_panel') {
 			//Codec.xAPI.command('Message Send', { Text: 'Start button pushed!!' });
 			//Codec.xAPI.command('Camera Preset Activate', { PresetId: '1' + (parseInt(currentSource) + 1) });
-			Codec.xAPI.command('Message Send', { Text: '1' + parseInt(currentSource) + 1});
+			let text = ('1' + parseInt(currentSource) + 1);
+			Codec.xAPI.command('Message Send', { Text: text});
         }
 	});
 
