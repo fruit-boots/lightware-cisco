@@ -133,8 +133,7 @@ dev.lw3.addPropertyeWatcher(`/V1/MANAGEMENT/NETWORK`, "IpAddress", (val) => { Li
 dev.lw3.addPropertyeWatcher(`/V1/MANAGEMENT/NETWORK`, "HostName", (val) => { Lightware.HostName = val; if(!Codec.Room) initRoom(val); if(!Codec.Room) initRoom(`${val}.local`); });
 dev.lw3.addPropertyeWatcher(`/`, "SerialNumber", (val) => { Lightware.SerialNumber = val; });
 	
-
-
+var currentSouce = 0; // input flag for start webcam mode
 function readyCodec() {
 	console.log('  == > Cisco Codec conenction ready');
 	
@@ -185,8 +184,7 @@ function readyCodec() {
 		10*60*10
 	);
 	
-	
-	
+
 	/* Remove all the external sources from the Share screen */
 	/*console.log('  == > UserInterface Presentation ExternalSource RemoveAll');
 	Codec.xAPI.command('UserInterface Presentation ExternalSource RemoveAll').then( response => {
@@ -201,6 +199,7 @@ function readyCodec() {
 	/*Codec.xAPI.event.on('UserInterface Presentation ExternalSource Selected SourceIdentifier', (selectedsourceid) => {
 		Shared.ExternalSourceList.find( (item) => item.SourceIdentifier == selectedsourceid ).switch();
 	});*/
+
 	Codec.xAPI.event.on('PresentationStopped',		(event) => { Shared.PresentationStopped(event, dev); });
 	Codec.xAPI.event.on('PresentationPreviewStopped',	(event) => { Shared.PresentationStopped(event, dev); });
 	Codec.xAPI.event.on('PresentationStarted',		(event) => { Shared.PresentationStarted(event, dev); });
@@ -218,7 +217,7 @@ function readyCodec() {
 
 	//var WebcamSources = ["Laptop USB-C","Laptop HDMI","Room PC",""];
 	var WebcamSources = [];
-	var currentSouce = ''; // used to re-init usb mode
+
 
 	for(var i = 1; i <= 4; i++){
 		WebcamSources[i-1] = "";
