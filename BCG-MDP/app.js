@@ -289,6 +289,7 @@ function readyCodec() {
 				FeedbackId: 'SwitchWebcam' + WebcamSources[cam]
 			});
 		} else if (event.Text == WebcamSources[cam] + ' USB unplugged') {
+			currentSource = '';
 			Codec.xAPI.command('UserInterface Extensions Panel Remove', { PanelId: 'lw_start_webcammode_panel' });
 			Codec.xAPI.command('UserInterface Extensions Panel Remove', { PanelId: 'lw_exit_webcammode_panel' });
 			Codec.xAPI.command('Camera Preset Activate', { PresetId: '10' });
@@ -334,6 +335,9 @@ function readyCodec() {
 
 		//Codec.xAPI.command('Presentation Stop');
 		Codec.xAPI.command('UserInterface Extensions Panel Remove', { PanelId: 'lw_exit_webcammode_panel' });
+		if (currentSource != '') {
+			Codec.xAPI.command('UserInterface Extensions Panel Save', { PanelId: 'lw_start_webcammode_panel' }, StartWebcamMode);
+        }
 	});
 }
 
