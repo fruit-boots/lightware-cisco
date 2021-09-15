@@ -265,13 +265,13 @@ function readyCodec() {
 	});
 
 	Codec.xAPI.command('Camera Preset Store', {Name: 'Webex', PresetId:10, CameraId:1});
-		for (var cam=0; cam<4; cam++) {
-			if (WebcamSources[cam] != '') {
-				Codec.xAPI.command('Camera Preset Store', {Name: WebcamSources[cam], PresetId:(10+parseInt(cam)+1).toString(), CameraId:1});
-			}
-			else {
-				Codec.xAPI.command('Camera Preset Remove', {PresetId:(10+parseInt(cam)+1).toString()}).catch(err => console.log(err));
-			}
+	for (var cam=0; cam<4; cam++) {
+		if (WebcamSources[cam] != '') {
+			Codec.xAPI.command('Camera Preset Store', {Name: WebcamSources[cam], PresetId:(10+parseInt(cam)+1).toString(), CameraId:1});
+		}
+		else {
+			Codec.xAPI.command('Camera Preset Remove', {PresetId:(10+parseInt(cam)+1).toString()}).catch(err => console.log(err));
+		}
 	}
 
 
