@@ -240,7 +240,7 @@ function readyCodec() {
 	<Version>1.6</Version>
 	<Panel>
 		<PanelId>lw_start_webcammode_panel</PanelId>
-		<Type>Statusbar</Type>
+		<Type>Home</Type>
 		<Icon>Camera</Icon>
 		<Order>4</Order>
 		<Color>#00FF00</Color>
@@ -265,13 +265,13 @@ function readyCodec() {
 	});
 
 	Codec.xAPI.command('Camera Preset Store', {Name: 'Webex', PresetId:10, CameraId:1});
-	for (var cam=0; cam<4; cam++) {
-	if (WebcamSources[cam] != '') {
-		Codec.xAPI.command('Camera Preset Store', {Name: WebcamSources[cam], PresetId:(10+parseInt(cam)+1).toString(), CameraId:1});
-	}
-	else {
-		Codec.xAPI.command('Camera Preset Remove', {PresetId:(10+parseInt(cam)+1).toString()}).catch(err => console.log(err));
-	}
+		for (var cam=0; cam<4; cam++) {
+			if (WebcamSources[cam] != '') {
+				Codec.xAPI.command('Camera Preset Store', {Name: WebcamSources[cam], PresetId:(10+parseInt(cam)+1).toString(), CameraId:1});
+			}
+			else {
+				Codec.xAPI.command('Camera Preset Remove', {PresetId:(10+parseInt(cam)+1).toString()}).catch(err => console.log(err));
+			}
 	}
 
 
@@ -333,11 +333,14 @@ function readyCodec() {
 		dev.lw3.CALL(`/V1/MEDIA/USB/XP:switch`, `0:H1`, () => { });
 		dev.lw3.SET(`/V1/MEDIA/USB/H1/D1.Power5VMode`, `Off`, () => { });
 
-		//Codec.xAPI.command('Presentation Stop');
 		Codec.xAPI.command('UserInterface Extensions Panel Remove', { PanelId: 'lw_exit_webcammode_panel' });
+	});
+
+	// add start webcam button on call disconnect
+	Codec.xAPI.event.on('CallDisconnect', (_event) => {
 		if (currentSource != '') {
 			Codec.xAPI.command('UserInterface Extensions Panel Save', { PanelId: 'lw_start_webcammode_panel' }, StartWebcamMode);
-        }
+		}
 	});
 }
 
