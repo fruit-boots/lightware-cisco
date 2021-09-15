@@ -64,17 +64,19 @@ function updateCodecUSBConnected(item, connection) {
 				if (response.status == 'OK') { console.log(`  == > Message to Codec: Message Send Text: "${item.Name + ' USB plugged in'}" is`); }
 				else { console.log(`  == > Message not sent to Codec:"${item.Name + ' USB plugged in'}"`); }
 			});
+			item.Connected = true;
 		} else {
 			Codec.xAPI.command('Message Send', { Text: item.Name + ' USB unplugged' }).then(response => {
 				if (response.status == 'OK') { console.log(`  == > Message to Codec: Message Send Text: "${item.Name + ' USB unplugged'}" is`); }
 				else { console.log(`  == > Message not sent to Codec:"${item.Name + ' USB unplugged'}"`); }
 			});
+			item.Connected = false;
         }
 	} else {console.log(`  == > Codec is not connected, message not sent to Codec:"${item.Name + " USB plugged in"}"`);}	
 }
 
 
-function registerUSBConnectionWatchers(item, index) {
+function registerUSBConnectionWatchers(item) {
 	dev.lw3.addPropertyeWatcher(`/V1/MEDIA/USB/U${item.Input}`, "Connected", (val) => {
 		console.log(`  == > /V1/MEDIA/USB/U${item.Input}.Connected=${val}`);
 		//item.State = ((/true|1/).test(val)==true) ? "Ready":"NotReady";
