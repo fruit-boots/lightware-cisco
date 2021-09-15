@@ -212,10 +212,14 @@ function readyCodec() {
 		});
 	}
 
+	Codec.xAPI.command('Message Send', { Text: WebcamSources.join() + ' is stored in WebcamSources (init)' });
+
 	Shared.ExternalSourceList.forEach( (item) => {
 		WebcamSources.push(item.Name);
 	});
-	
+
+	Codec.xAPI.command('Message Send', { Text: WebcamSources.join() + ' is stored in WebcamSources (push)' });
+
 	var PreviousSelectedCameraPreset = 0;
 	var ExitWebcamMode =
 	`
@@ -255,14 +259,13 @@ function readyCodec() {
 			Codec.xAPI.command('UserInterface Extensions Panel Save', { PanelId: 'lw_start_webcammode_panel' }, StartWebcamMode);
 		} else if (event.PanelId == 'lw_start_webcammode_panel') {
 			for (var cam in WebcamSources) {
-				Codec.xAPI.command('Message Send', { Text: WebcamSources[cam] + ' in WebcamSources with loc = ' + cam });
+				//Codec.xAPI.command('Message Send', { Text: WebcamSources[cam] + ' in WebcamSources with loc = ' + cam });
 				if (currentSource == 'currentSouce=' + WebcamSources[cam]) {
 					Codec.xAPI.command('Message Send', { Text: ('1' + parseInt(cam) + 1) + ' sent from button as preset' });
 					Codec.xAPI.command('Camera Preset Activate', { PresetId: ('1' + parseInt(cam) + 1) });
+					break;// needed to exit because WebcamSources has duplicate values in list
                 }
             }
-			//Codec.xAPI.command('Message Send', { Text: (10 + parseInt(currentSource) + 1) + ' sent from button as preset' });
-			//Codec.xAPI.command('Camera Preset Activate', { PresetId: (10 + parseInt(currentSource) + 1) });
         }
 	});
 
@@ -318,6 +321,7 @@ function readyCodec() {
 	}
 	if (event.PresetId > 10) {
 		let input = event.PresetId % 10;
+		Codec.xAPI.command('Message Send', { Text: input + ' is the preset number' });
 		dev.lw3.CALL(`/V1/MEDIA/VIDEO/XP:switch`, `I${input}:O${Lightware.Output}`, () => {});
 		dev.lw3.CALL(`/V1/MEDIA/USB/XP:switch`, `U${input}:H1`, () => {});
 		dev.lw3.SET(`/V1/MEDIA/USB/H1/D1.Power5VMode`, `On`, () => {});
