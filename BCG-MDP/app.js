@@ -213,14 +213,9 @@ function readyCodec() {
 	}
 
 	/*
-	Codec.xAPI.command('Message Send', { Text: WebcamSources.join() + ' is stored in WebcamSources (init)' });
-	
 	Shared.ExternalSourceList.forEach( (item) => {
 		WebcamSources.push(item.Name);
 	});
-
-
-	Codec.xAPI.command('Message Send', { Text: WebcamSources.join() + ' is stored in WebcamSources (push)' });
 	*/
 
 	var PreviousSelectedCameraPreset = 0;
@@ -264,9 +259,7 @@ function readyCodec() {
 			for (var cam in WebcamSources) {
 				//Codec.xAPI.command('Message Send', { Text: WebcamSources[cam] + ' in WebcamSources with loc = ' + cam });
 				if (currentSource == 'currentSouce=' + WebcamSources[cam]) {
-					Codec.xAPI.command('Message Send', { Text: ('1' + parseInt(cam) + 1) + ' sent from button as preset' });
 					Codec.xAPI.command('Camera Preset Activate', { PresetId: '1' + (parseInt(cam) + 1) });
-					break;// needed to exit because WebcamSources has duplicate values in list
                 }
             }
         }
@@ -288,7 +281,6 @@ function readyCodec() {
 	for (var cam in WebcamSources) {
 		if (event.Text == WebcamSources[cam] + ' USB plugged in') {
 			currentSource = 'currentSouce='+WebcamSources[cam];
-			Codec.xAPI.command('Message Send', { Text: currentSource + ' is stored' });
 			Codec.xAPI.command('UserInterface Extensions Panel Save', { PanelId: 'lw_start_webcammode_panel' }, StartWebcamMode);
 			Codec.xAPI.command('UserInterface Message Prompt Display', {
 				Title: WebcamSources[cam] + ' USB plugged in',
@@ -300,6 +292,7 @@ function readyCodec() {
 		} else if (event.Text == WebcamSources[cam] + ' USB unplugged') {
 			Codec.xAPI.command('UserInterface Extensions Panel Remove', { PanelId: 'lw_start_webcammode_panel' });
 			Codec.xAPI.command('UserInterface Extensions Panel Remove', { PanelId: 'lw_exit_webcammode_panel' });
+			Codec.xAPI.command('Camera Preset Activate', { PresetId: '10' });
         }
 	}
 	});
@@ -336,7 +329,7 @@ function readyCodec() {
 	PreviousSelectedCameraPreset = event.PresetId;
 	});
 
-	// logic for calls coming in. Same logic for "exit webcam mode"
+	// logic for calls coming in. Similar logic for "exit webcam mode"
 	Codec.xAPI.event.on('CallSuccessful', (_event) => {
 		dev.lw3.CALL(`/V1/MEDIA/USB/XP:switch`, `0:H1`, () => { });
 		dev.lw3.SET(`/V1/MEDIA/USB/H1/D1.Power5VMode`, `Off`, () => { });
