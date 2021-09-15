@@ -76,9 +76,8 @@ function updateCodecUSBConnected(item, connection) {
 
 function registerUSBConnectionWatchers(item, index) {
 	dev.lw3.addPropertyeWatcher(`/V1/MEDIA/USB/U${item.Input}`, "Connected", (val) => {
-		console.log(`  == > /V1/MEDIA/VIDEO/U${item.Input}.Connected=${val}`);
+		console.log(`  == > /V1/MEDIA/USB/U${item.Input}.Connected=${val}`);
 		//item.State = ((/true|1/).test(val)==true) ? "Ready":"NotReady";
-
 		var connection = (/true|1/).test(val);
 		updateCodecUSBConnected(item, connection);
 
@@ -124,7 +123,6 @@ function initRoom(ip) {
 }
 
 /* Register to input signal changes */
-//Shared.ExternalSourceList.forEach(registerSignalPresent);
 Shared.ExternalSourceList.forEach(registerUSBConnectionWatchers);
 dev.lw3.addPropertyeWatcher(`/V1/MANAGEMENT/UID`, "HwVersion", (val) => { Lightware.HwVersion = val; });
 dev.lw3.addPropertyeWatcher(`/`, "PackageVersion", (val) => { Lightware.PackageVersion = val; });
@@ -166,22 +164,7 @@ function readyCodec() {
 		},
 		10*60*10
 	);
-	
 
-	/* Remove all the external sources from the Share screen */
-	/*console.log('  == > UserInterface Presentation ExternalSource RemoveAll');
-	Codec.xAPI.command('UserInterface Presentation ExternalSource RemoveAll').then( response => {
-		if(response.status=='OK') {	console.log(`  == > Removing all ExternalSources from the Share screen succeeded`);	}
-		else { console.log(`  == > Respond in not OK for ExternalSources removal`);	}
-	});*/
-
-	/* Register the configured sources to the codec, and update the signal info */
-	//Shared.ExternalSourceList.forEach(registerExternalSources);
-
-	/* Switch source when selected */
-	/*Codec.xAPI.event.on('UserInterface Presentation ExternalSource Selected SourceIdentifier', (selectedsourceid) => {
-		Shared.ExternalSourceList.find( (item) => item.SourceIdentifier == selectedsourceid ).switch();
-	});*/
 
 	Codec.xAPI.event.on('PresentationStopped',		(event) => { Shared.PresentationStopped(event, dev); });
 	Codec.xAPI.event.on('PresentationPreviewStopped',	(event) => { Shared.PresentationStopped(event, dev); });
@@ -191,34 +174,20 @@ function readyCodec() {
 	Codec.xAPI.event.on('OutgoingCallIndication',		(event) => { Shared.CallStarted(event, dev); });
 	Codec.xAPI.event.on('IncomingCallIndication',		(event) => { Shared.CallStarted(event, dev); });
 	Codec.xAPI.event.on('CallDisconnect',				(event) => { Shared.CallEnded(event, dev); });
-	
-//	Codec.xAPI.command(`UserInterface Message Prompt Display`,{Title: `Lightware ${Lightware.ProductName} integration to ${Codec.Room.roomID}`, Text:'Your system is ready to use', Duration:5});
+
 	Codec.xAPI.command(`UserInterface Message Prompt Display`,{Text: `Room ${Codec.Room.roomID}<br>integrated with<br>Lightware ${Lightware.ProductName}`, Title:'Your system is ready to use', Duration:10});
 	Codec.xAPI.command(`Presentation Stop`,{}).then( response => {
 		Shared.PresentationStopped(null, dev);
 	});
 
-	//var WebcamSources = ["Laptop USB-C","Laptop HDMI","Room PC",""];
+	//var WebcamSources = ["Laptop 1 USB-C", "Laptop 2 USB-C", "HDMI 1", "HDMI 2"];
 	var WebcamSources = [];
 
-
-	for(var i = 1; i <= 4; i++){
-		WebcamSources[i-1] = "";
-
-		Shared.ExternalSourceList.forEach((item) => {
-			if(i == parseInt(item.Input, 10)){
-				WebcamSources[i-1] = item.Name;
-			}
-		});
-	}
-
-	/*
 	Shared.ExternalSourceList.forEach( (item) => {
 		WebcamSources.push(item.Name);
 	});
-	*/
 
-	var PreviousSelectedCameraPreset = 0;
+
 	var ExitWebcamMode =
 	`
 	<Extensions>
@@ -250,36 +219,26 @@ function readyCodec() {
 	</Extensions>
 	`
 
-	var currentSource = ''; //Start webcam panel
+	var currentSource = 0;
 	Codec.xAPI.event.on('UserInterface Extensions Panel Clicked', (event) => {
 		if (event.PanelId == 'lw_exit_webcammode_panel') {
-			Codec.xAPI.command('Camera Preset Activate', { PresetId: '10' });
+			lwSwitcher(0, false);
 			Codec.xAPI.command('UserInterface Extensions Panel Save', { PanelId: 'lw_start_webcammode_panel' }, StartWebcamMode);
 		} else if (event.PanelId == 'lw_start_webcammode_panel') {
 			for (var cam in WebcamSources) {
 				if (currentSource == 'currentSouce=' + WebcamSources[cam]) {
-					Codec.xAPI.command('Camera Preset Activate', { PresetId: '1' + (parseInt(cam) + 1) });
+					lwSwitcher((parseInt(cam) + 1), true);
                 }
             }
         }
 	});
-
-	Codec.xAPI.command('Camera Preset Store', {Name: 'Webex', PresetId:10, CameraId:1});
-	for (var cam=0; cam<4; cam++) {
-		if (WebcamSources[cam] != '') {
-			Codec.xAPI.command('Camera Preset Store', {Name: WebcamSources[cam], PresetId:(10+parseInt(cam)+1).toString(), CameraId:1});
-		}
-		else {
-			Codec.xAPI.command('Camera Preset Remove', {PresetId:(10+parseInt(cam)+1).toString()}).catch(err => console.log(err));
-		}
-	}
 
 
 
 	Codec.xAPI.event.on('Message Send', (event) => {
 	for (var cam in WebcamSources) {
 		if (event.Text == WebcamSources[cam] + ' USB plugged in') {
-			currentSource = 'currentSouce='+WebcamSources[cam];
+			currentSource = cam+1;
 			Codec.xAPI.command('UserInterface Extensions Panel Save', { PanelId: 'lw_start_webcammode_panel' }, StartWebcamMode);
 			Codec.xAPI.command('UserInterface Message Prompt Display', {
 				Title: WebcamSources[cam] + ' USB plugged in',
@@ -289,10 +248,10 @@ function readyCodec() {
 				FeedbackId: 'SwitchWebcam' + WebcamSources[cam]
 			});
 		} else if (event.Text == WebcamSources[cam] + ' USB unplugged') {
-			currentSource = '';
+			currentSource = 0;
 			Codec.xAPI.command('UserInterface Extensions Panel Remove', { PanelId: 'lw_start_webcammode_panel' });
 			Codec.xAPI.command('UserInterface Extensions Panel Remove', { PanelId: 'lw_exit_webcammode_panel' });
-			Codec.xAPI.command('Camera Preset Activate', { PresetId: '10' });
+			lwSwitcher(0, false);
         }
 	}
 	});
@@ -301,48 +260,45 @@ function readyCodec() {
 		for (var cam in WebcamSources) {
 			if (event.FeedbackId == 'SwitchWebcam' + WebcamSources[cam]) {
 				if (event.OptionId == '1') {
-					Codec.xAPI.command('Camera Preset Activate', { PresetId: '1' + (parseInt(cam) + 1) });
+					lwSwitcher((parseInt(cam) + 1), true);
 				}
 			}
 		}
 	});
 
-	Codec.xAPI.event.on('CameraPresetActivated', (event) => {
-	if ((event.PresetId == 10) && (PreviousSelectedCameraPreset != 10)) {
-		dev.lw3.CALL(`/V1/MEDIA/USB/XP:switch`, `0:H1`, () => {});
-		dev.lw3.SET(`/V1/MEDIA/USB/H1/D1.Power5VMode`, `Off`, () => {});
-
-		Codec.xAPI.command('Presentation Stop');
-		Codec.xAPI.command('UserInterface Extensions Panel Remove', { PanelId: 'lw_exit_webcammode_panel' });
-	}
-	if (event.PresetId > 10) {
-		let input = event.PresetId % 10;
-		dev.lw3.CALL(`/V1/MEDIA/VIDEO/XP:switch`, `I${input}:O${Lightware.Output}`, () => {});
-		dev.lw3.CALL(`/V1/MEDIA/USB/XP:switch`, `U${input}:H1`, () => {});
-		dev.lw3.SET(`/V1/MEDIA/USB/H1/D1.Power5VMode`, `On`, () => {});
-
-		Codec.xAPI.command('Presentation Start');
-		Codec.xAPI.command('UserInterface Extensions Panel Save', { PanelId: 'lw_exit_webcammode_panel' }, ExitWebcamMode);
-		Codec.xAPI.command('UserInterface Extensions Panel Remove', { PanelId: 'lw_start_webcammode_panel' });
-	}
-	PreviousSelectedCameraPreset = event.PresetId;
-	});
-
 	// logic for calls coming in. Similar logic for "exit webcam mode"
 	Codec.xAPI.event.on('CallSuccessful', (_event) => {
-		dev.lw3.CALL(`/V1/MEDIA/USB/XP:switch`, `0:H1`, () => { });
-		dev.lw3.SET(`/V1/MEDIA/USB/H1/D1.Power5VMode`, `Off`, () => { });
-
-		Codec.xAPI.command('UserInterface Extensions Panel Remove', { PanelId: 'lw_exit_webcammode_panel' });
+		lwSwitcher(0, false);
 	});
 
 	// add start webcam button on call disconnect
 	Codec.xAPI.event.on('CallDisconnect', (_event) => {
-		if (currentSource != '') {
+		if (currentSource != 0) {
 			Codec.xAPI.command('UserInterface Extensions Panel Save', { PanelId: 'lw_start_webcammode_panel' }, StartWebcamMode);
 		}
 	});
+
+	function lwSwitcher(input, enable_usb) {
+		if (enable_usb == false) {
+			dev.lw3.CALL(`/V1/MEDIA/USB/XP:switch`, `0:H1`, () => { });
+			dev.lw3.SET(`/V1/MEDIA/USB/H1/D1.Power5VMode`, `Off`, () => { });
+
+			Codec.xAPI.command('Presentation Stop');
+			Codec.xAPI.command('UserInterface Extensions Panel Remove', { PanelId: 'lw_exit_webcammode_panel' });
+		} else {
+			dev.lw3.CALL(`/V1/MEDIA/VIDEO/XP:switch`, `I${input}:O${Lightware.Output}`, () => { });
+			dev.lw3.CALL(`/V1/MEDIA/USB/XP:switch`, `U${input}:H1`, () => { });
+			dev.lw3.SET(`/V1/MEDIA/USB/H1/D1.Power5VMode`, `On`, () => { });
+
+			Codec.xAPI.command('Presentation Start');
+			Codec.xAPI.command('UserInterface Extensions Panel Save', { PanelId: 'lw_exit_webcammode_panel' }, ExitWebcamMode);
+			Codec.xAPI.command('UserInterface Extensions Panel Remove', { PanelId: 'lw_start_webcammode_panel' });
+		}
+
+	}
 }
+
+
 
 
 function errorCodec(err) {
