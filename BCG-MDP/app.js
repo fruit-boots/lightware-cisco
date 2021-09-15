@@ -225,11 +225,7 @@ function readyCodec() {
 			lwSwitcher(0, false);
 			Codec.xAPI.command('UserInterface Extensions Panel Save', { PanelId: 'lw_start_webcammode_panel' }, StartWebcamMode);
 		} else if (event.PanelId == 'lw_start_webcammode_panel') {
-			for (var cam in WebcamSources) {
-				if (currentSource == 'currentSouce=' + WebcamSources[cam]) {
-					lwSwitcher((parseInt(cam) + 1), true);
-                }
-            }
+				lwSwitcher(currentSource, true);
         }
 	});
 
@@ -257,12 +253,8 @@ function readyCodec() {
 	});
 
 	Codec.xAPI.event.on('UserInterface Message Prompt Response', (event) => {
-		for (var cam in WebcamSources) {
-			if (event.FeedbackId == 'SwitchWebcam' + WebcamSources[cam]) {
-				if (event.OptionId == '1') {
-					lwSwitcher((parseInt(cam) + 1), true);
-				}
-			}
+		if (event.OptionId == '1') {
+			lwSwitcher(currentSource, true);
 		}
 	});
 
