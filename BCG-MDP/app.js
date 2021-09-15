@@ -137,24 +137,7 @@ dev.lw3.addPropertyeWatcher(`/`, "SerialNumber", (val) => { Lightware.SerialNumb
 function readyCodec() {
 	console.log('  == > Cisco Codec conenction ready');
 	
-	Codec.isConnected = true;
-	  
-	/*Codec.xAPI.config.get('Video Input Connector').then( response => {
-		/* set ut the used connector 
-		response.filter( connector => connector.id == Codec.ConnectorId).map( c => {
-			Codec.xAPI.config.set(`Video Input Connector ${c.id} Name`,'Source');
-			Codec.xAPI.config.set(`Video Input Connector ${c.id} Visibility`,'Always');
-			if (c.InputSourceType != 'camera') {
-				Codec.xAPI.config.set(`Video Input Connector ${c.id} PresentationSelection`,'Manual');
-				Codec.xAPI.config.set(`Video Input Connector ${c.id} CameraControl Mode`,'Off');
-			}
-		});
-		/* setup the unused connector 
-		response.filter( connector => connector.id != Codec.ConnectorId).map( c => {
-			Codec.xAPI.config.set(`Video Input Connector ${c.id} Name`,'');
-			Codec.xAPI.config.set(`Video Input Connector ${c.id} Visibility`,'Never');
-		});
-	});/*	
+	Codec.isConnected = true;	
 	
 	/* Control system and heartbeat handling */
 	Codec.xAPI.config.set(`Peripherals Profile ControlSystems`,1).then( result => {
@@ -264,6 +247,7 @@ function readyCodec() {
 	</Panel>
 	</Extensions>
 	`
+
 	var currentSource = ''; //Start webcam panel
 	Codec.xAPI.event.on('UserInterface Extensions Panel Clicked', (event) => {
 		if (event.PanelId == 'lw_exit_webcammode_panel') {
@@ -271,7 +255,8 @@ function readyCodec() {
 			Codec.xAPI.command('UserInterface Extensions Panel Save', { PanelId: 'lw_start_webcammode_panel' }, StartWebcamMode);
 		} else if (event.PanelId == 'lw_start_webcammode_panel') {
 			for (var cam in WebcamSources) {
-				if (WebcamSources[cam] == currentSource) {
+				Codec.xAPI.command('Message Send', { Text: WebcamSources[cam] + ' in WebcamSources with loc = ' + cam });
+				if (currentSource == 'currentSouce=' + WebcamSources[cam]) {
 					Codec.xAPI.command('Message Send', { Text: ('1' + parseInt(cam) + 1) + ' sent from button as preset' });
 					Codec.xAPI.command('Camera Preset Activate', { PresetId: ('1' + parseInt(cam) + 1) });
                 }
@@ -291,20 +276,12 @@ function readyCodec() {
 	}
 	}
 
-	Codec.xAPI.event.on('UserInterface Message Prompt Response', (event) => {
-		for (var cam in WebcamSources) {
-			if (event.FeedbackId == 'SwitchWebcam'+WebcamSources[cam]) {
-				if (event.OptionId == '1') {
-					Codec.xAPI.command('Camera Preset Activate', {PresetId: '1'+(parseInt(cam)+1)});
-				}
-			}
-		}
-	});
+
 
 	Codec.xAPI.event.on('Message Send', (event) => {
 	for (var cam in WebcamSources) {
 		if (event.Text == WebcamSources[cam] + ' USB plugged in') {
-			currentSource = WebcamSources[cam];
+			currentSource = 'currentSouce='+WebcamSources[cam];
 			Codec.xAPI.command('Message Send', { Text: currentSource + ' is stored' });
 			Codec.xAPI.command('UserInterface Extensions Panel Save', { PanelId: 'lw_start_webcammode_panel' }, StartWebcamMode);
 			Codec.xAPI.command('UserInterface Message Prompt Display', {
@@ -319,6 +296,16 @@ function readyCodec() {
 			Codec.xAPI.command('UserInterface Extensions Panel Remove', { PanelId: 'lw_exit_webcammode_panel' });
         }
 	}
+	});
+
+	Codec.xAPI.event.on('UserInterface Message Prompt Response', (event) => {
+		for (var cam in WebcamSources) {
+			if (event.FeedbackId == 'SwitchWebcam' + WebcamSources[cam]) {
+				if (event.OptionId == '1') {
+					Codec.xAPI.command('Camera Preset Activate', { PresetId: '1' + (parseInt(cam) + 1) });
+				}
+			}
+		}
 	});
 
 	Codec.xAPI.event.on('CameraPresetActivated', (event) => {
