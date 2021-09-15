@@ -212,13 +212,16 @@ function readyCodec() {
 		});
 	}
 
+	/*
 	Codec.xAPI.command('Message Send', { Text: WebcamSources.join() + ' is stored in WebcamSources (init)' });
-
+	
 	Shared.ExternalSourceList.forEach( (item) => {
 		WebcamSources.push(item.Name);
 	});
 
+
 	Codec.xAPI.command('Message Send', { Text: WebcamSources.join() + ' is stored in WebcamSources (push)' });
+	*/
 
 	var PreviousSelectedCameraPreset = 0;
 	var ExitWebcamMode =
@@ -262,7 +265,7 @@ function readyCodec() {
 				//Codec.xAPI.command('Message Send', { Text: WebcamSources[cam] + ' in WebcamSources with loc = ' + cam });
 				if (currentSource == 'currentSouce=' + WebcamSources[cam]) {
 					Codec.xAPI.command('Message Send', { Text: ('1' + parseInt(cam) + 1) + ' sent from button as preset' });
-					Codec.xAPI.command('Camera Preset Activate', { PresetId: ('1' + parseInt(cam) + 1) });
+					Codec.xAPI.command('Camera Preset Activate', { PresetId: '1' + (parseInt(cam) + 1) });
 					break;// needed to exit because WebcamSources has duplicate values in list
                 }
             }
