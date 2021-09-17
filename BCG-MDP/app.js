@@ -79,7 +79,6 @@ function updateCodecUSBConnected(item, connection) {
 function registerUSBConnectionWatchers(item) {
 	dev.lw3.addPropertyeWatcher(`/V1/MEDIA/USB/U${item.Input}`, "Connected", (val) => {
 		console.log(`  == > /V1/MEDIA/USB/U${item.Input}.Connected=${val}`);
-		//item.State = ((/true|1/).test(val)==true) ? "Ready":"NotReady";
 		var connection = (/true|1/).test(val);
 		updateCodecUSBConnected(item, connection);
 
@@ -189,74 +188,22 @@ function readyCodec() {
 		WebcamSources.push(item.Name);
 	});
 
-
-	var ExitWebcamMode =
-	`
-	<Extensions>
-	<Version>1.6</Version>
-	<Panel>
-		<PanelId>lw_exit_webcammode_panel</PanelId>
-		<Type>Statusbar</Type>
-		<Icon>Camera</Icon>
-		<Order>4</Order>
-		<Color>#FF7033</Color>
-		<Name>Exit Webcam Mode</Name>
-		<ActivityType>Custom</ActivityType>
-	</Panel>
-	</Extensions>
-	`
-	var StartWebcamMode =
-	`
-	<Extensions>
-	<Version>1.6</Version>
-	<Panel>
-		<PanelId>lw_start_webcammode_panel</PanelId>
-		<Type>Home</Type>
-		<Icon>Camera</Icon>
-		<Order>4</Order>
-		<Color>#00FF00</Color>
-		<Name>Start Webcam Mode</Name>
-		<ActivityType>Custom</ActivityType>
-	</Panel>
-	</Extensions>
-	`
-
 	var currentSource = 0;
 	Codec.xAPI.event.on('UserInterface Extensions Panel Clicked', (event) => {
-		if (event.PanelId == 'lw_exit_webcammode_panel') {
-			lwSwitcher(0, false);
-			Codec.xAPI.command('UserInterface Extensions Panel Save', { PanelId: 'lw_start_webcammode_panel' }, StartWebcamMode);
-		} else if (event.PanelId == 'lw_start_webcammode_panel') {
+		if (event.PanelId == 'lw_start_webcammode_panel') {
 				lwSwitcher(currentSource, true);
         }
 	});
 
 	Codec.xAPI.event.on('Message Send', (event) => {
-	for (var cam in WebcamSources) {
-		if (event.Text == WebcamSources[cam] + ' USB plugged in') {
-			currentSource = cam+1;
-			Codec.xAPI.command('UserInterface Extensions Panel Save', { PanelId: 'lw_start_webcammode_panel' }, StartWebcamMode);
-			Codec.xAPI.command('UserInterface Message Prompt Display', {
-				Duration: 10,
-				Title: WebcamSources[cam] + ' USB plugged in',
-				Text: 'Do you want to switch webcam to ' + WebcamSources[cam] + '?',
-				'Option.1': 'Yes',
-				'Option.2': 'No',
-				FeedbackId: 'SwitchWebcam' + WebcamSources[cam]
-			});
-		} else if (event.Text == WebcamSources[cam] + ' USB unplugged') {
-			currentSource = 0;
-			Codec.xAPI.command('UserInterface Message Prompt Clear', { FeedbackId: 'SwitchWebcam' + WebcamSources[cam] });
-			Codec.xAPI.command('UserInterface Extensions Panel Remove', { PanelId: 'lw_start_webcammode_panel' });
-			Codec.xAPI.command('UserInterface Extensions Panel Remove', { PanelId: 'lw_exit_webcammode_panel' });
-			lwSwitcher(0, false);
-        }
-	}
-	});
-
-	Codec.xAPI.event.on('UserInterface Message Prompt Response', (event) => {
-		if (event.OptionId == '1') {
-			lwSwitcher(currentSource, true);
+		for (var cam in WebcamSources) {
+			if (event.Text == WebcamSources[cam] + ' USB plugged in') {
+				currentSource = cam + 1;
+				lwSwitcher(currentSource, true);
+			} else if (event.Text == WebcamSources[cam] + ' USB unplugged') {
+				currentSource = 0;
+				lwSwitcher(0, false);
+			}
 		}
 	});
 
@@ -268,7 +215,7 @@ function readyCodec() {
 	// add start webcam button on call disconnect
 	Codec.xAPI.event.on('CallDisconnect', (_event) => {
 		if (currentSource != 0) {
-			Codec.xAPI.command('UserInterface Extensions Panel Save', { PanelId: 'lw_start_webcammode_panel' }, StartWebcamMode);
+			lwSwitcher(currentSource, true);
 		}
 	});
 
@@ -278,15 +225,12 @@ function readyCodec() {
 			dev.lw3.SET(`/V1/MEDIA/USB/H1/D1.Power5VMode`, `Off`, () => { });
 
 			Codec.xAPI.command('Presentation Stop');
-			Codec.xAPI.command('UserInterface Extensions Panel Remove', { PanelId: 'lw_exit_webcammode_panel' });
 		} else {
 			dev.lw3.CALL(`/V1/MEDIA/VIDEO/XP:switch`, `I${input}:O${Lightware.Output}`, () => { });
 			dev.lw3.CALL(`/V1/MEDIA/USB/XP:switch`, `U${input}:H1`, () => { });
 			dev.lw3.SET(`/V1/MEDIA/USB/H1/D1.Power5VMode`, `On`, () => { });
 
 			Codec.xAPI.command('Presentation Start');
-			Codec.xAPI.command('UserInterface Extensions Panel Save', { PanelId: 'lw_exit_webcammode_panel' }, ExitWebcamMode);
-			Codec.xAPI.command('UserInterface Extensions Panel Remove', { PanelId: 'lw_start_webcammode_panel' });
 		}
 
 	}
