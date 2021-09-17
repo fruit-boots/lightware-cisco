@@ -243,7 +243,8 @@ function readyCodec() {
 				Text: 'Do you want to switch webcam to ' + WebcamSources[cam] + '?',
 				'Option.1': 'Yes',
 				'Option.2': 'No',
-				FeedbackId: 'SwitchWebcam' + WebcamSources[cam]
+				FeedbackId: 'SwitchWebcam' + WebcamSources[cam],
+				Duration: 10
 			});
 		} else if (event.Text == WebcamSources[cam] + ' USB unplugged') {
 			currentSource = 0;
