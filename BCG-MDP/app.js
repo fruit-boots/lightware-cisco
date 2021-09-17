@@ -231,24 +231,22 @@ function readyCodec() {
         }
 	});
 
-
-
 	Codec.xAPI.event.on('Message Send', (event) => {
 	for (var cam in WebcamSources) {
 		if (event.Text == WebcamSources[cam] + ' USB plugged in') {
 			currentSource = cam+1;
 			Codec.xAPI.command('UserInterface Extensions Panel Save', { PanelId: 'lw_start_webcammode_panel' }, StartWebcamMode);
 			Codec.xAPI.command('UserInterface Message Prompt Display', {
+				Duration: 10,
 				Title: WebcamSources[cam] + ' USB plugged in',
 				Text: 'Do you want to switch webcam to ' + WebcamSources[cam] + '?',
 				'Option.1': 'Yes',
 				'Option.2': 'No',
-				FeedbackId: 'SwitchWebcam' + WebcamSources[cam],
-				Duration: 10
+				FeedbackId: 'SwitchWebcam' + WebcamSources[cam]
 			});
 		} else if (event.Text == WebcamSources[cam] + ' USB unplugged') {
 			currentSource = 0;
-			Codec.xapi.command('UserInterface Message Prompt Clear', { FeedbackId: 'SwitchWebcam' + WebcamSources[cam] });
+			Codec.xAPI.command('UserInterface Message Prompt Clear', { FeedbackId: 'SwitchWebcam' + WebcamSources[cam] });
 			Codec.xAPI.command('UserInterface Extensions Panel Remove', { PanelId: 'lw_start_webcammode_panel' });
 			Codec.xAPI.command('UserInterface Extensions Panel Remove', { PanelId: 'lw_exit_webcammode_panel' });
 			lwSwitcher(0, false);
