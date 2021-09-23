@@ -1,6 +1,6 @@
 # lightware-cisco
 
-Add codec credentials then zip dir to upload.
+Add codec credentials to config file then zip dir to upload.
 
 **BCG-MDP_original**
 - original file sent by lightware
