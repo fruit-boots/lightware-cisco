@@ -3,9 +3,7 @@ exports.Config = {
 		Codec:{
 			ID:'CiscoCodec',
 			UserName:"admin",
-			Password:"BOSvcC1sco!",
-			//UserName:"admin",
-			//Password:"admin",
+			Password:"",
 			xAPI:null,
 			isConnected:false,
 			ConnectorId:2
