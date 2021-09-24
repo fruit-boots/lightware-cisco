@@ -1,6 +1,6 @@
 # lightware-cisco
 
-Add codec credentials to config file then zip dir to upload.
+Add codec credentials to config file and edit roomlist.json! Settings on the codec should be `OnStreaming` for BYOD mode and `OnConnect` for content sharing.
 
 **BCG-MDP_original**
 - original file sent by lightware
@@ -19,7 +19,7 @@ Add codec credentials to config file then zip dir to upload.
 
 **BCG-MDP_current**
 
-**This is the latest version.** Settings on the codec should be `OnStreaming` for BYOD mode and `OnConnect` for content sharing.
+**This is the latest version.**
 This allows the automation to work properly.
 - disable USB ports when call is connected, resume USB ports when call is disconnected.
 - automate USB connection via last connected source, meaning there is no prompt on the touch panel and no exit/start webcam mode buttons.
