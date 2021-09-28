@@ -1,0 +1,10 @@
+{
+	"HomeOfficeTest": {
+		"CiscoCodec": "192.168.0.100",
+		"Taurus": "lightware-B1188389.local"
+	},
+	"UserTest": {
+		"CiscoCodec": "192.168.0.83",
+		"Taurus": "lightware-B2190923.local"
+	}
+}

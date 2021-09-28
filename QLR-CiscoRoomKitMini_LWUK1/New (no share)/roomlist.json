@@ -1,0 +1,54 @@
+{
+	"HomeOfficeTest": {
+		"CiscoCodec": "192.168.1.220",
+		"Taurus": "lightware-AB182914.local"
+	},
+	"FelixTest": {
+		"CiscoCodec": "192.168.1.179",
+		"Taurus": "lightware-B3192255.local"
+	},
+	"BCG LON.5A.88": {
+		"CiscoCodec": "10.200.81.115",
+		"Taurus": "lightware-B1188389.local"
+	},
+	"BCG LON.5D.81": {
+		"CiscoCodec": "10.200.81.112",
+		"Taurus": "lightware-B6212512.local"
+	},
+	"BCG LON.5D.70": {
+		"CiscoCodec": "10.200.81.103",
+		"Taurus": "lightware-B6212513.local"
+	},
+	"BCG LON.5D.54": {
+		"CiscoCodec": "10.200.81.95",
+		"Taurus": "lightware-B6212517.local"
+	},
+	"BCG LON.5B.22": {
+		"CiscoCodec": "10.200.81.121",
+		"Taurus": "lightware-B6212516.local"
+	},
+	"BCG LON.7D.32": {
+		"CiscoCodec": "10.200.81.26",
+		"Taurus": "lightware-B6212909.local"
+	},
+	"BCG LON.7D.50": {
+		"CiscoCodec": "10.200.81.37",
+		"Taurus": "lightware-B6212902.local"
+	},
+	"BCG LON.6D.87": {
+		"CiscoCodec": "10.200.81.60",
+		"Taurus": "lightware-B6212905.local"
+	},
+	"BCG LON.6D.74": {
+		"CiscoCodec": "10.200.81.53",
+		"Taurus": "lightware-B7213285.local"
+	},
+	"BCG LON.6D.96": {
+		"CiscoCodec": "10.200.81.65",
+		"Taurus": "lightware-B6212908.local"
+	},
+	"BCG LON.6B.20": {
+		"CiscoCodec": "10.200.81.73",
+		"Taurus": "lightware-B6212904.local"
+	}
+}
